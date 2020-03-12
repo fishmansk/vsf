@@ -1,17 +1,15 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <Editor></Editor>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import Editor from './components/Editor.vue'
+import store from './store'
 export default {
   name: 'App',
+  store,
   components: {
-    HelloWorld
+    Editor
   }
 }
 </script>
@@ -24,5 +22,14 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+html{
+  height: 100%;
+  font-family: Arial,Helvetica Neue,Helvetica,sans-serif; 
+}
+body{
+  height: 100%;
+  margin: 0px;
+  overflow: hidden;
 }
 </style>

@@ -83,10 +83,10 @@ export default {
     }
   },
   mounted() {
-    this.left = 0;
-    this.top = 0;
-    this.width = 2000;
-    this.height = 1000;
+    this.left = -10000;
+    this.top = -10000;
+    this.width = 20000;
+    this.height = 20000;
     
   },
   methods: {}

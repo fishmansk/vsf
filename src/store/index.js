@@ -42,21 +42,24 @@ export default new Vuex.Store({
       window.onmousemove = state.socket_connecting.socket_start.onmousemove;
     },
     socket_connection_end(state, socket) {
-      state.socket_connecting.socket_end = socket;
-      state.socket_connecting.connecting = false;
-      if (socket.type == "output"){
-        let buf = state.socket_connecting.socket_start;
-        state.socket_connecting.socket_start = state.socket_connecting.socket_end;
-        state.socket_connecting.socket_end = buf;        
+      if (state.socket_connecting.connecting) {
+        state.socket_connecting.socket_end = socket;
+        state.socket_connecting.connecting = false;
+        if (socket.stream == "output") {
+          let buf = state.socket_connecting.socket_start;
+          state.socket_connecting.socket_start = state.socket_connecting.socket_end;
+          state.socket_connecting.socket_end = buf;
+        }
+        window.onmousemove = state.socket_connecting.window_onmousemove_handler;
+        if (state.socket_connecting.socket_start.stream != state.socket_connecting.socket_end.stream) {
+          state.connections.push({
+            id: uuid4(),
+            start: state.socket_connecting.socket_start,
+            end: state.socket_connecting.socket_end,
+          });
+        }
       }
-      window.onmousemove = state.socket_connecting.window_onmousemove_handler;
-      if (state.socket_connecting.socket_start.type != state.socket_connecting.socket_end.type) {
-        state.connections.push({
-          id: uuid4(),
-          start: state.socket_connecting.socket_start,
-          end: state.socket_connecting.socket_end,
-        });
-      }
+
 
     },
     assign_connection_component(state, { id, component }) {
@@ -94,6 +97,31 @@ export default new Vuex.Store({
       }
 
     },
+    blocks_socket_change_type(state, {block_id, socket, type}) {
+      console.log('blocks_socket_change_type');
+      console.log(block_id, socket, type);
+      for (let block of state.blocks) {
+        if (block.id == block_id) {
+          if (socket.stream == "input") {
+            for (let i = 0; i < block.inputs.length; i++) {
+              if (block.inputs[i].text == socket.text) {
+                block.inputs[i].type = type;
+              }
+            }
+          }
+          else {
+            for (let i = 0; i < block.outputs.length; i++) {
+              if (block.outputs[i].text == socket.text) {
+                block.outputs[i].type = type;
+              }
+            }
+          }
+
+        }
+      }
+      socket.$parent.$forceUpdate();
+      console.log('blocks, ', state.blocks);
+    }
   },
   actions: {
   },

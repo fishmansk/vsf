@@ -1,6 +1,6 @@
 <template>
   <svg class="connection">
-    <path :d="line_path()" fill="none" stroke="#000000ff" stroke-width="2" />
+    <path :d="line_path()" fill="none" stroke="#000000ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="5,5"/>
   </svg>
 </template>
 
@@ -63,8 +63,15 @@ export default {
         svg_bounding.left = end_socket.left;
         svg_bounding.width = start_socket.left - end_socket.left;
       }
+      
       svg_bounding.top += start_socket.height / 2.0;
       svg_bounding.left += start_socket.width / 2.0;
+      //offset by line width
+      svg_bounding.top -= 2;
+      svg_bounding.left -= 2;
+      svg_bounding.width += 4;
+      svg_bounding.height += 4;
+      
       return svg_bounding;
     },
     update_bound() {

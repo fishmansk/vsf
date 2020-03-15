@@ -1,27 +1,78 @@
 <template>
   <div :class="`${classes}`">
-    <div class="socket" ref="socket"></div>
-    <div>{{this.text}}</div>
+    <div v-if="type=='stream'" class="socket" ref="socket"></div>
+    <div style="display: flex; flex-direction: column;">
+      <div>{{this.text}}</div>
+      <input v-if="type=='string'" />
+    </div>
+    <PopupMenu :component="this" :menu="menu"></PopupMenu>
   </div>
-  
 </template>
 
 <script>
+import PopupMenu from "./PopupMenu.vue";
 export default {
   name: "Socket",
-  props: ["type", "text"],
-  computed: {
-    classes(){
-      let class_list = [];
-      if (this.type == "input"){
-        class_list.push("socket-input");
-      }
-      else{
-        class_list.push("socket-output");
-      }
-      return class_list.join(" ")
+  props: {
+    stream: {
+      type: String
+    },
+    text: {
+      type: String
+    },
+    type: {
+      type: String,
+      default: "stream"
+      //types: stream, string
     }
   },
+  components: {
+    PopupMenu
+  },
+  data: function() {
+    return {
+      menu: [
+        {
+          text: "Изменить тип",
+          handler: function(e) {}.bind(this),
+          submenu: [
+            {
+              text: "Stream",
+              handler: function(e) {
+                this.$store.commit("blocks_socket_change_type", {
+                  block_id: this.$parent.id,
+                  socket: this,
+                  type: "stream"
+                });
+              }.bind(this)
+            },
+            {
+              text: "String",
+              handler: function(e) {
+                this.$store.commit("blocks_socket_change_type", {
+                  block_id: this.$parent.id,
+                  socket: this,
+                  type: "string"
+                });
+              }.bind(this)
+            }
+          ]
+        }
+      ]
+    };
+  },
+  computed: {
+    classes() {
+      let class_list = [];
+      if (this.stream == "input") {
+        class_list.push("socket-input");
+      } else {
+        class_list.push("socket-output");
+      }
+      return class_list.join(" ");
+    }
+  },
+  
   mounted() {
     //binds
     this.onmousedown = this.onmousedown.bind(this);
@@ -59,28 +110,27 @@ export default {
 .socket {
   width: 15px;
   height: 15px;
-  border: 1px solid #ddddddff;
+  border: 1px solid #777777ff;
   background-color: rgb(219, 219, 219);
   margin-left: 2px;
   margin-right: 2px;
+  border-radius: 50%;
 }
 
-.socket:hover{
-  border: 1px solid #ddddddff;
-  background-color: rgb(209, 255, 255);
-
-
+.socket:hover {
+  background-color: rgb(248, 248, 248);
 }
 
 .socket-input {
+  margin-top: 2px;
   display: flex;
   flex-direction: row;
   justify-content: start;
 }
 .socket-output {
+  margin-top: 2px;
   display: flex;
   flex-direction: row-reverse;
   justify-content: end;
 }
-
 </style>

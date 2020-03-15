@@ -7,16 +7,18 @@
       <div class="block-inputs">
         <Socket
           v-for="socket in inputs" :key="socket.text"
-          type="input"
-          :text="socket.text"          
+          stream="input"
+          :text="socket.text"    
+          :type="socket.type"      
         ></Socket>
         
       </div>
       <div class="block-outputs">        
         <Socket
           v-for="socket in outputs" :key="socket.text"
-          type="output"
+          stream="output"
           :text="socket.text"          
+          :type="socket.type"      
         ></Socket>
       </div>
     </div>
@@ -40,13 +42,7 @@ export default {
   data: function() {
     return {
       parent: {},
-      menu: [
-        {
-          text: "Добавить сокет",
-          handler: function(e) {
-            console.log("Click BTN1");
-          }.bind(this)
-        },
+      menu: [       
         {
           text: "Удалить",
           handler: function(e) {

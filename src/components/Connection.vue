@@ -1,14 +1,18 @@
 <template>
   <svg class="connection">
-    <path :d="line_path()" fill="none" stroke="#000000ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="5,5"/>
+
+    <path v-if="flow=='data'" :d="line_path()" fill="none" stroke="#999999ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="5,5"/>
+    <path v-else :d="line_path()" fill="none" stroke="#4f9400ff" stroke-width="4" stroke-linecap="round" />
   </svg>
 </template>
 
 <script>
 export default {
   name: "Connection",
-  props: ["id", "start", "end"],
-  computed: {},
+  props: ["id", "start", "end", "flow"],
+  computed: {
+    
+  },
   mounted() {
     this.$store.commit("assign_connection_component", {
       id: this.id,
@@ -96,4 +100,5 @@ export default {
   min-width: 2px;
   min-height: 2px;
 }
+
 </style>

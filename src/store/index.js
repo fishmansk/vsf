@@ -51,12 +51,18 @@ export default new Vuex.Store({
           state.socket_connecting.socket_end = buf;
         }
         window.onmousemove = state.socket_connecting.window_onmousemove_handler;
-        if (state.socket_connecting.socket_start.stream != state.socket_connecting.socket_end.stream) {
+        if (
+          (state.socket_connecting.socket_start.stream != state.socket_connecting.socket_end.stream) &&
+          (state.socket_connecting.socket_start.flow == state.socket_connecting.socket_end.flow) &&
+          (state.socket_connecting.socket_start.$parent != state.socket_connecting.socket_end.$parent)
+        ) {
           state.connections.push({
             id: uuid4(),
             start: state.socket_connecting.socket_start,
             end: state.socket_connecting.socket_end,
+            flow: state.socket_connecting.socket_start.flow,
           });
+          console.log('connections, ', state.connections);
         }
       }
 
@@ -97,7 +103,7 @@ export default new Vuex.Store({
       }
 
     },
-    blocks_socket_change_type(state, {block_id, socket, type}) {
+    blocks_socket_change_type(state, { block_id, socket, type }) {
       console.log('blocks_socket_change_type');
       console.log(block_id, socket, type);
       for (let block of state.blocks) {
@@ -121,6 +127,10 @@ export default new Vuex.Store({
       }
       socket.$parent.$forceUpdate();
       console.log('blocks, ', state.blocks);
+      console.log('this, ', this);
+      if (type != "stream") {
+        this.commit('connections_socket_deleted', socket);
+      }
     }
   },
   actions: {

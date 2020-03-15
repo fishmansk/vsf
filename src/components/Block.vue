@@ -1,7 +1,10 @@
 <template>
-  <div class="block">
+  <div :class="`block ${class_color}`">
     <div class="block-title" style="padding: 5px;">
-      {{title}}
+      <div>
+        <b>{{title}}</b>
+      </div>
+      <div class="block-title-type">{{this.type}}</div>
     </div>
     <div style="display: flex; flex-direction: row;">
       <div class="block-inputs">
@@ -9,7 +12,8 @@
           v-for="socket in inputs" :key="socket.text"
           stream="input"
           :text="socket.text"    
-          :type="socket.type"      
+          :type="socket.type"    
+          :flow="socket.flow"  
         ></Socket>
         
       </div>
@@ -19,6 +23,7 @@
           stream="output"
           :text="socket.text"          
           :type="socket.type"      
+          :flow="socket.flow"  
         ></Socket>
       </div>
     </div>
@@ -37,7 +42,7 @@ export default {
     Socket,
     PopupMenu
   },
-  props: ["id", "stop", "sleft", "swidth", "sheight", "inputs", "outputs", "title"],
+  props: ["id", "stop", "sleft", "swidth", "sheight", "inputs", "outputs", "title", "type"],
 
   data: function() {
     return {
@@ -51,8 +56,23 @@ export default {
         }
       ]
     };
-  },
+  },  
   mixins: [DragableMixin],
+  computed: {
+    class_color(){
+      if (this.type == "data"){
+        return "block-color-data"
+      }
+      if (this.type == "operation"){
+        return "block-color-operation"
+      }
+      if (this.type == "event"){
+        return "block-color-event"
+      }
+      
+
+    }
+  },
   mounted() {
     this.left = this.sleft;
     this.top = this.stop;
@@ -81,6 +101,18 @@ export default {
   height: fit-content;
   width: fit-content;
   padding: 5px;
+  border-radius: 3px;
+}
+.block-color-data{
+  background-color: #eeeeeeff;
+}
+.block-color-operation{
+  background-color: #eeffffff;
+  
+}
+.block-color-event{
+  background-color: #ddffddff;
+  
 }
 .block-inputs {
   display: flex;
@@ -98,5 +130,15 @@ export default {
 }
 .block-title{
   cursor: move;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+.block-title-type{
+  margin-left: 10px;
+  border: 1px solid #999999ff;
+  padding: 1px;
+  border-radius: 3px;
 }
 </style>

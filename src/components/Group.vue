@@ -6,6 +6,7 @@
       v-for="block in blocks"
       :key="block.id"
       :id="block.id"
+      :type="block.type"
       :sleft="block.left"
       :stop="block.top"
       :swidth="block.width"
@@ -20,6 +21,7 @@
       :id="connection.id"
       :start="connection.start"
       :end="connection.end"
+      :flow="connection.flow"
     ></Connection>
     <PopupMenu :component="this" :menu="menu"></PopupMenu>
   </div>
@@ -68,9 +70,39 @@ export default {
                 block.top = e.layerY;
                 this.$store.commit("blocks_add", lodash.cloneDeep(block));
               }.bind(this)
-            }
+            },
+            {
+              text: "Event: start",
+              handler: function(e) {
+                console.log("Добавление", e);
+                let block = blocks.event_start;
+                block.left = e.layerX;
+                block.top = e.layerY;
+                this.$store.commit("blocks_add", lodash.cloneDeep(block));
+              }.bind(this)
+            },
+            {
+              text: "Data: string",
+              handler: function(e) {
+                console.log("Добавление", e);
+                let block = blocks.data_string;
+                block.left = e.layerX;
+                block.top = e.layerY;
+                this.$store.commit("blocks_add", lodash.cloneDeep(block));
+              }.bind(this)
+            },
+            {
+              text: "Data: number",
+              handler: function(e) {
+                console.log("Добавление", e);
+                let block = blocks.data_number;
+                block.left = e.layerX;
+                block.top = e.layerY;
+                this.$store.commit("blocks_add", lodash.cloneDeep(block));
+              }.bind(this)
+            },
           ]
-        }
+        },
       ]
     };
   },

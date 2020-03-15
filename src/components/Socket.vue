@@ -1,6 +1,6 @@
 <template>
   <div :class="`${classes}`">
-    <div v-if="type=='stream'" class="socket" ref="socket"></div>
+    <div v-if="(type=='stream')||(stream=='output')" class="socket" ref="socket"></div>
     <div style="display: flex; flex-direction: column;">
       <div>{{this.text}}</div>
       <input v-if="type=='string'" />
@@ -24,6 +24,10 @@ export default {
       type: String,
       default: "stream"
       //types: stream, string
+    },
+    flow: {
+      type: String,
+      default: "data"
     }
   },
   components: {
@@ -57,6 +61,13 @@ export default {
               }.bind(this)
             }
           ]
+        },
+        {
+          text: "Удалить связи",
+          handler: function(e) {
+            this.$store.commit('connections_socket_deleted', this);
+
+          }.bind(this),
         }
       ]
     };
@@ -69,10 +80,13 @@ export default {
       } else {
         class_list.push("socket-output");
       }
+      if (this.flow == "control") {
+        class_list.push("socket-flow-control");
+      }
       return class_list.join(" ");
     }
   },
-  
+
   mounted() {
     //binds
     this.onmousedown = this.onmousedown.bind(this);
@@ -132,5 +146,13 @@ export default {
   display: flex;
   flex-direction: row-reverse;
   justify-content: end;
+  align-items: center;
+}
+
+.socket-flow-control {
+  /* background-color: #ddffddff; */
+}
+.socket-flow-control > div:nth-child(1) {
+  border-color: #00ff00ff;
 }
 </style>

@@ -3,17 +3,20 @@
     <div v-if="(type=='stream')||(stream=='output')" class="socket" ref="socket"></div>
     <div style="display: flex; flex-direction: column;">
       <div>{{this.text}}</div>
-      <input v-if="type=='string'" />
+      <input v-if="type=='string'" v-model="value" @change="onchangevalue($event)" />
     </div>
     <PopupMenu :component="this" :menu="menu"></PopupMenu>
   </div>
 </template>
 
 <script>
-import PopupMenu from "./PopupMenu.vue";
+import PopupMenu from "../utils/PopupMenu.vue";
 export default {
   name: "Socket",
   props: {
+    id: {
+      type: String
+    },
     stream: {
       type: String
     },
@@ -35,6 +38,7 @@ export default {
   },
   data: function() {
     return {
+      value: "",
       menu: [
         {
           text: "Изменить тип",
@@ -63,11 +67,21 @@ export default {
           ]
         },
         {
+          text: "Изменить название",
+          handler: function(e) {
+            let text = prompt("Enter new socket name");
+            this.$store.commit("blocks_socket_change_text", {
+              block_id: this.$parent,
+              socket: this,
+              text
+            });
+          }.bind(this)
+        },
+        {
           text: "Удалить связи",
           handler: function(e) {
-            this.$store.commit('connections_socket_deleted', this);
-
-          }.bind(this),
+            this.$store.commit("connections_socket_deleted", this);
+          }.bind(this)
         }
       ]
     };
@@ -80,9 +94,15 @@ export default {
       } else {
         class_list.push("socket-output");
       }
-      if (this.flow == "control") {
-        class_list.push("socket-flow-control");
+      if (this.type == "stream") {
+        if (this.flow == "control") {
+          class_list.push("socket-flow-control");
+        }
+        if (this.flow == "data") {
+          class_list.push("socket-flow-data");
+        }
       }
+
       return class_list.join(" ");
     }
   },
@@ -115,6 +135,13 @@ export default {
         this.$store.commit("socket_connection_end", this);
         e.stopPropagation();
       }
+    },
+    onchangevalue(e) {
+      this.$store.commit("blocks_socket_value_change", {
+        block_id: this.$parent.id,
+        socket: this,
+        value: this.value
+      });
     }
   }
 };
@@ -124,15 +151,11 @@ export default {
 .socket {
   width: 15px;
   height: 15px;
-  border: 1px solid #777777ff;
-  background-color: rgb(219, 219, 219);
+  border: 1px solid rgb(153, 153, 153);
+  background-color: rgb(255, 255, 255);
   margin-left: 2px;
   margin-right: 2px;
   border-radius: 50%;
-}
-
-.socket:hover {
-  background-color: rgb(248, 248, 248);
 }
 
 .socket-input {
@@ -154,5 +177,16 @@ export default {
 }
 .socket-flow-control > div:nth-child(1) {
   border-color: #00ff00ff;
+}
+.socket-flow-data > div:nth-child(1) {
+  border-color: #ff8800ff;
+}
+
+.socket-flow-control > div:nth-child(1):hover {
+  background-color: #00ff00ff;
+}
+
+.socket-flow-data > div:nth-child(1):hover {
+  background-color: #ff8800ff;
 }
 </style>

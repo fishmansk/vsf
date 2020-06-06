@@ -11,6 +11,7 @@
         <Socket
           v-for="socket in inputs" :key="socket.text"
           stream="input"
+          :id="socket.id"
           :text="socket.text"    
           :type="socket.type"    
           :flow="socket.flow"  
@@ -21,6 +22,7 @@
         <Socket
           v-for="socket in outputs" :key="socket.text"
           stream="output"
+          :id="socket.id"
           :text="socket.text"          
           :type="socket.type"      
           :flow="socket.flow"  
@@ -35,7 +37,7 @@
 <script>
 import DragableMixin from "./DragableMixin.vue";
 import Socket from "./Socket.vue";
-import PopupMenu from "./PopupMenu.vue";
+import PopupMenu from "../utils/PopupMenu.vue";
 export default {
   name: "Block",
   components: {
@@ -47,7 +49,24 @@ export default {
   data: function() {
     return {
       parent: {},
-      menu: [       
+      menu: [    
+        {
+          text: "Добавить входной сокет",
+          handler: function(e) {
+            let text = prompt('Enter text field of socket');
+            let stream = "input";
+            this.$store.commit("blocks_sockets_add", {block_id: this.id, stream, text});
+          }.bind(this)
+        },
+        {
+          text: "Добавить выходной сокет",
+          handler: function(e) {
+            let text = prompt('Enter text field of socket');
+            let stream = "output";
+            this.$store.commit("blocks_sockets_add", {block_id: this.id, stream, text});
+          }.bind(this)
+        },
+
         {
           text: "Удалить",
           handler: function(e) {
@@ -95,7 +114,7 @@ export default {
 .block {
   position: absolute;
   background-color: #ffffffff;
-  border: 1px dashed #999999ff;
+  border: 2px dashed #999999ff;
   display: flex;
   flex-direction: column;
   height: fit-content;
@@ -103,15 +122,20 @@ export default {
   padding: 5px;
   border-radius: 3px;
 }
+
+.block:hover{
+  border: 2px solid #999999ff;
+}
+
 .block-color-data{
-  background-color: #eeeeeeff;
+  background-color: rgb(255, 255, 255);
 }
 .block-color-operation{
-  background-color: #eeffffff;
+  background-color: #ccffffff;
   
 }
 .block-color-event{
-  background-color: #ddffddff;
+  background-color: #ccffccff;
   
 }
 .block-inputs {
@@ -138,7 +162,10 @@ export default {
 .block-title-type{
   margin-left: 10px;
   border: 1px solid #999999ff;
-  padding: 1px;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
   border-radius: 3px;
+  background-color: #ffffffff;
 }
 </style>

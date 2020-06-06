@@ -43,6 +43,8 @@ export default new Vuex.Store({
     },
     socket_connection_end(state, socket) {
       if (state.socket_connecting.connecting) {
+        window.onmousemove = state.socket_connecting.window_onmousemove_handler;
+
         state.socket_connecting.socket_end = socket;
         state.socket_connecting.connecting = false;
         if (socket.stream == "output") {
@@ -50,7 +52,6 @@ export default new Vuex.Store({
           state.socket_connecting.socket_start = state.socket_connecting.socket_end;
           state.socket_connecting.socket_end = buf;
         }
-        window.onmousemove = state.socket_connecting.window_onmousemove_handler;
         if (
           (state.socket_connecting.socket_start.stream != state.socket_connecting.socket_end.stream) &&
           (state.socket_connecting.socket_start.flow == state.socket_connecting.socket_end.flow) &&
@@ -82,10 +83,21 @@ export default new Vuex.Store({
     },
     blocks_add(state, block) {
       block.id = uuid4();
+      for (let i = 0; i < block.inputs.length; i++) {
+        block.inputs[i].id = uuid4();
+        if (block.inputs[i].type != "stream")
+          block.inputs[i].value = "";
+      }
+      for (let i = 0; i < block.outputs.length; i++) {
+        block.outputs[i].id = uuid4();
+        if (block.outputs[i].type != "stream")
+          block.outputs[i].value = "";
+      }
       console.log(block);
       state.blocks.push(block);
       console.log(state.blocks);
     },
+
     blocks_delete(state, id) {
       for (let idx = 0; idx < state.blocks.length; idx++) {
         if (state.blocks[idx].id == id) {
@@ -93,6 +105,28 @@ export default new Vuex.Store({
           break;
         }
       }
+    },
+    blocks_socket_value_change(state, { block_id, socket, value }) {
+      for (let block of state.blocks) {
+        if (block.id == block_id) {
+          if (socket.stream == "input") {
+            for (let i = 0; i < block.inputs.length; i++) {
+              if (block.inputs[i].text == socket.text) {
+                block.inputs[i].value = value;
+              }
+            }
+          }
+          else {
+            for (let i = 0; i < block.outputs.length; i++) {
+              if (block.outputs[i].text == socket.text) {
+                block.outputs[i].value = value;
+              }
+            }
+          }
+
+        }
+      }
+      socket.$parent.$forceUpdate();
     },
     connections_socket_deleted(state, socket) {
       for (let idx = 0; idx < state.connections.length; idx++) {
@@ -104,8 +138,6 @@ export default new Vuex.Store({
 
     },
     blocks_socket_change_type(state, { block_id, socket, type }) {
-      console.log('blocks_socket_change_type');
-      console.log(block_id, socket, type);
       for (let block of state.blocks) {
         if (block.id == block_id) {
           if (socket.stream == "input") {
@@ -125,13 +157,62 @@ export default new Vuex.Store({
 
         }
       }
-      socket.$parent.$forceUpdate();
+      
       console.log('blocks, ', state.blocks);
       console.log('this, ', this);
       if (type != "stream") {
-        this.commit('connections_socket_deleted', socket);
+        
+        socket.$nextTick(function(){this.commit('connection_update');}.bind(this));
+
       }
-    }
+      socket.$parent.$forceUpdate();
+    },
+    blocks_sockets_add(state, { block_id, stream, text }) {
+      for (let block of state.blocks) {
+        if (block.id == block_id) {
+          let socket = {
+            id: uuid4(),
+            text,
+            flow: "data",
+          }
+          if (stream == "input") {
+            block.inputs.push(socket);
+          }
+          else {
+            block.outputs.push(socket);
+          }
+        }
+      }
+
+    },
+    blocks_socket_change_text(state, { block_id, socket, text }) {
+      console.log(block_id, socket, text)
+      for (let block of state.blocks) {
+        if (block.id == block_id) {
+          if (socket.stream == "input") {
+            for (let i = 0; i < block.inputs.length; i++) {
+              if (block.inputs[i].text == socket.text) {
+                block.inputs[i].text = text;
+                console.log('change text');
+
+              }
+            }
+          }
+          else {
+            for (let i = 0; i < block.outputs.length; i++) {
+              if (block.outputs[i].text == socket.text) {
+                block.outputs[i].text = text;
+                console.log('change text');
+
+              }
+            }
+          }
+
+        }
+      }
+      socket.$parent.$forceUpdate();
+
+    },
   },
   actions: {
   },

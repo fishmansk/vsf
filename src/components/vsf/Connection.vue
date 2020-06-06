@@ -1,7 +1,7 @@
 <template>
   <svg class="connection">
 
-    <path v-if="flow=='data'" :d="line_path()" fill="none" stroke="#999999ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="5,5"/>
+    <path v-if="flow=='data'" :d="line_path()" fill="none" stroke="#ff8800ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="5,5"/>
     <path v-else :d="line_path()" fill="none" stroke="#4f9400ff" stroke-width="4" stroke-linecap="round" />
   </svg>
 </template>

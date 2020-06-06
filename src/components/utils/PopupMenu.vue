@@ -69,6 +69,7 @@ export default {
       menu.style.left = `${e.x}px`;
       menu.style.display = "flex";
       this.$el.style.display = "block";
+      this.autoCorrectPosition(e.x, e.y);
       this.handlers.window_onmousedown = window.onmousedown;
       this.handlers.window_oncontextmenu = window.oncontextmenu;
       this.$el.onclick = this.close_menu.bind(this);
@@ -101,7 +102,25 @@ export default {
       if (this.submenu != undefined) {
         this.submenu = [];
       }
-    }
+    },
+    autoCorrectPosition(wantLeft, wantTop){
+      let left = wantLeft;
+      let top = wantTop;
+      let menu = this.$refs.menu;
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let elWidth = menu.offsetWidth;
+      let elHeight = menu.offsetHeight;
+      if (wantLeft + elWidth > width){
+        left = width - elWidth - 5;
+      }
+      if (wantTop + elHeight > height){
+        top = height - elHeight - 5;
+      }
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+      console.log(wantLeft, wantTop, elWidth, elHeight, width, height);
+    },
   }
 };
 </script>

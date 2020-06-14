@@ -15,7 +15,7 @@
       :inputs="block.inputs"
       :outputs="block.outputs"
       ref="block"
-      @drag="update_coordinates(block, $event)"
+      @stopdrag="update_coordinates(block, $event)"
     ></Block>
     <Connection
       v-for="connection of connections"
@@ -224,12 +224,12 @@ export default {
   },
   methods: {
     update_coordinates(block, event) {
-      console.log(block, event);
       this.$store.commit("block_update_coord", {
         block,
         left: event.left,
         top: event.top
       });
+      this.$forceUpdate();
     },
     export() {
       let app = {

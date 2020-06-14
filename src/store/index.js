@@ -5,6 +5,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    cache: {
+      blocks_by_id: {},
+    },
     socket_connecting: {
       socket_start: null,
       socket_end: null,
@@ -92,14 +95,9 @@ export default new Vuex.Store({
       console.log(state.connections)
     },
     block_update_coord(state, { block, left, top }) {
-      for (let i = 0; i < state.blocks.length; i++) {
-        if (state.blocks[i] == block) {
-          state.blocks[i].left = left;
-          state.blocks[i].top = top;
-        }
-
-      }
-
+      let b = state.cache.blocks_by_id[block.id];
+      b.left = left;
+      b.top = top;
     },
     blocks_add(state, block) {
       block.id = uuid4();
@@ -113,18 +111,19 @@ export default new Vuex.Store({
         if (block.outputs[i].type != "stream")
           block.outputs[i].value = "";
       }
-      console.log(block);
       state.blocks.push(block);
-      console.log(state.blocks);
+      this.commit('cache_update_blocks_by_id');
     },
 
     blocks_delete(state, id) {
+      
       for (let idx = 0; idx < state.blocks.length; idx++) {
         if (state.blocks[idx].id == id) {
           state.blocks.splice(idx, 1);
           break;
         }
       }
+      this.commit('cache_update_blocks_by_id');
     },
     blocks_socket_value_change(state, { block_id, socket, value }) {
       for (let block of state.blocks) {
@@ -233,8 +232,15 @@ export default new Vuex.Store({
       socket.$parent.$forceUpdate();
 
     },
+    cache_update_blocks_by_id(state){
+      for (let idx = 0; idx < state.blocks.length; idx++){
+        state.cache.blocks_by_id[state.blocks[idx].id] = state.blocks[idx];
+      }
+    },
     import_blocks(state, script) {
-      state.blocks = script.blocks;         
+      state.blocks = script.blocks;   
+      this.commit('cache_update_blocks_by_id');
+
     },
     import_connections(state, script) {   
       console.log(script.connections);

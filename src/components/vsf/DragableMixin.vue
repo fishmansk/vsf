@@ -61,7 +61,7 @@ export default {
         window.onmouseup = this.onmouseup;
         window.onmouseleave = this.onmouseup;
         e.stopPropagation();
-        this.$emit('startdrag');
+        this.$emit("startdrag");
       }
     },
     onmouseup(e) {
@@ -71,7 +71,7 @@ export default {
         window.onmouseup = this.drag.window_handlers.onmouseup;
         window.onmouseleave = this.drag.window_handlers.onmouseleave;
         e.stopPropagation();
-        this.$emit('stopdrag');
+        this.$emit("stopdrag", { left: this.left, top: this.top });
       }
     },
     onmousemove(e) {
@@ -82,7 +82,7 @@ export default {
         this.left += offsetX;
         this.drag.oldX = e.clientX;
         this.drag.oldY = e.clientY;
-        this.$emit('drag', {left: this.left, top: this.top});
+        this.$emit("drag", { left: this.left, top: this.top });
       }
       // e.stopPropagation();
     }

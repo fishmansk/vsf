@@ -14,6 +14,8 @@
       :title="block.title"
       :inputs="block.inputs"
       :outputs="block.outputs"
+      ref="block"
+      @drag="update_coordinates(block, $event)"
     ></Block>
     <Connection
       v-for="connection of connections"
@@ -34,20 +36,22 @@ import Connection from "./Connection.vue";
 import PopupMenu from "../utils/PopupMenu.vue";
 import blocks from "./blocks.js";
 let lodash = require("lodash");
-let uuid4 = require('uuid4');
+let uuid4 = require("uuid4");
 
 function downloadString(text, fileType, fileName) {
   var blob = new Blob([text], { type: fileType });
 
-  var a = document.createElement('a');
+  var a = document.createElement("a");
   a.download = fileName;
   a.href = URL.createObjectURL(blob);
-  a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+  a.dataset.downloadurl = [fileType, a.download, a.href].join(":");
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+  setTimeout(function() {
+    URL.revokeObjectURL(a.href);
+  }, 1500);
 }
 
 export default {
@@ -165,17 +169,40 @@ export default {
                 block.top = e.layerY;
                 this.$store.commit("blocks_add", lodash.cloneDeep(block));
               }.bind(this)
-            },
+            }
           ]
         },
         {
           text: "Export",
           handler: function(e) {
             console.log("Export: ");
-            let data = this.export()
+            let data = this.export();
             // navigator.clipboard.writeText(JSON.stringify(data));
-            downloadString(JSON.stringify(data), "text/vsf", "program.vsf")
+            downloadString(JSON.stringify(data), "text/vsf", "program.vsf");
             // console.log(JSON.stringify(data));
+          }.bind(this)
+        },
+        {
+          text: "Export (Copy)",
+          handler: function(e) {
+            console.log("Export: ");
+            let data = this.export();
+            navigator.clipboard.writeText(JSON.stringify(data));
+          }.bind(this)
+        },
+        {
+          text: "Import",
+          handler: function(e) {
+            navigator.clipboard.readText().then(
+              function(text) {
+                try {
+                  const script = JSON.parse(text);
+                  this.import(script);
+                } catch (err) {
+                  console.log("Ошибка импорта", err);
+                }
+              }.bind(this)
+            );
           }.bind(this)
         }
       ]
@@ -196,8 +223,15 @@ export default {
     this.height = 20000;
   },
   methods: {
+    update_coordinates(block, event) {
+      console.log(block, event);
+      this.$store.commit("block_update_coord", {
+        block,
+        left: event.left,
+        top: event.top
+      });
+    },
     export() {
-      
       let app = {
         blocks: [],
         connections: []
@@ -213,44 +247,73 @@ export default {
           type: block.type
         };
         let inputs = [];
-        for (let socket of block.inputs){         
+        for (let socket of block.inputs) {
           let socket_data = {
             id: socket.id,
             text: socket.text,
             type: socket.type,
             default: socket.default,
             flow: socket.flow,
-            value: socket.value,
-          }
+            value: socket.value
+          };
           inputs.push(socket_data);
           // inputs.push(socket);
         }
         block_data.inputs = inputs;
         let outputs = [];
-        for (let socket of block.outputs){         
+        for (let socket of block.outputs) {
           let socket_data = {
             id: socket.id,
             text: socket.text,
             type: socket.type,
             default: socket.default,
             flow: socket.flow,
-            value: socket.value,
-          }
+            value: socket.value
+          };
           outputs.push(socket_data);
           // outputs.push(socket);
         }
         block_data.outputs = outputs;
         app.blocks.push(block_data);
       }
-      for (let connection of this.$store.state.connections){
+      for (let connection of this.$store.state.connections) {
         app.connections.push({
-            id: connection.id,
-            start: connection.start.id,
-            end: connection.end.id,
-            flow: connection.flow,
-        })
+          id: connection.id,
+          start: connection.start.id,
+          end: connection.end.id,
+          flow: connection.flow
+        });
       }
       return app;
+    },
+    import(script) {
+      this.$store.commit("import_blocks", script);
+      // this.$forceUpdate();
+      this.$nextTick(
+        function() {
+          for (let i = 0; i < script.connections.length; i++) {
+            for (let block of this.$refs.block) {
+              if ("input_socket" in block.$refs) {
+                for (let socket of block.$refs.input_socket) {
+                  if (socket.id == script.connections[i].end){
+                    script.connections[i].end = socket;
+                  }
+                }
+              }
+              if ("output_socket" in block.$refs) {
+                for (let socket of block.$refs.output_socket) {
+                  if (socket.id == script.connections[i].start){
+                    script.connections[i].start = socket;
+                  }
+                }
+              }
+            }
+          }
+          this.$store.commit("import_connections", script);
+        }.bind(this)
+      );
+
+      
     }
   }
 };

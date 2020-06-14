@@ -31,6 +31,9 @@ export default {
     flow: {
       type: String,
       default: "data"
+    },
+    svalue: {
+      type: String,
     }
   },
   components: {
@@ -108,6 +111,7 @@ export default {
   },
 
   mounted() {
+    console.log('SOCKET MOUNT: ', this.svalue)
     //binds
     this.onmousedown = this.onmousedown.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
@@ -115,7 +119,9 @@ export default {
     //other
     this.$el.onmousedown = this.onmousedown;
     this.$el.onmouseup = this.onmouseup;
+    this.value = this.svalue;
     //   this.$el.onmouseup = this.onmouseup.bind(this);
+    
   },
   beforeDestroy() {
     this.$store.commit("connections_socket_deleted", this);

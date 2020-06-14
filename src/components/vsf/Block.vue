@@ -15,6 +15,8 @@
           :text="socket.text"    
           :type="socket.type"    
           :flow="socket.flow"  
+          :svalue='socket.value'
+          ref='input_socket'
         ></Socket>
         
       </div>
@@ -26,6 +28,8 @@
           :text="socket.text"          
           :type="socket.type"      
           :flow="socket.flow"  
+          :svalue='socket.value'
+          ref='output_socket'
         ></Socket>
       </div>
     </div>
@@ -45,6 +49,7 @@ export default {
     PopupMenu
   },
   props: ["id", "stop", "sleft", "swidth", "sheight", "inputs", "outputs", "title", "type"],
+  
 
   data: function() {
     return {

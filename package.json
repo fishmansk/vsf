@@ -1,7 +1,7 @@
 {
-  "name": "vsf",
-  "version": "0.1.0",
-  "private": true,
+  "name": "viscork",
+  "description": "Visual Scription Framework",
+  "version": "0.1.4",
   "main": "index.js",
   "scripts": {
     "serve": "vue-cli-service serve",

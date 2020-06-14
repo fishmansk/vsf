@@ -35,6 +35,7 @@ export default new Vuex.Store({
     ],
   },
   mutations: {
+    
     socket_connection_start(state, socket) {
       state.socket_connecting.socket_start = socket;
       state.socket_connecting.connecting = true;
@@ -80,6 +81,25 @@ export default new Vuex.Store({
       for (let connection of state.connections) {
         connection.component.$forceUpdate();
       }
+    },
+    connection_set(state, {id, connection}){
+      for (let i = 0; i < state.connections.length; i++){
+        if (state.connections[i].id == id){
+          state.connections[i] = connection;
+          break;
+        }
+      }
+      console.log(state.connections)
+    },
+    block_update_coord(state, { block, left, top }) {
+      for (let i = 0; i < state.blocks.length; i++) {
+        if (state.blocks[i] == block) {
+          state.blocks[i].left = left;
+          state.blocks[i].top = top;
+        }
+
+      }
+
     },
     blocks_add(state, block) {
       block.id = uuid4();
@@ -157,12 +177,12 @@ export default new Vuex.Store({
 
         }
       }
-      
+
       console.log('blocks, ', state.blocks);
       console.log('this, ', this);
       if (type != "stream") {
-        
-        socket.$nextTick(function(){this.commit('connection_update');}.bind(this));
+
+        socket.$nextTick(function () { this.commit('connection_update'); }.bind(this));
 
       }
       socket.$parent.$forceUpdate();
@@ -213,6 +233,13 @@ export default new Vuex.Store({
       socket.$parent.$forceUpdate();
 
     },
+    import_blocks(state, script) {
+      state.blocks = script.blocks;         
+    },
+    import_connections(state, script) {   
+      console.log(script.connections);
+      state.connections = script.connections;
+    }
   },
   actions: {
   },

@@ -2,12 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 let uuid4 = require('uuid4');
 Vue.use(Vuex)
-
+let lodash = require("lodash");
 export default new Vuex.Store({
   state: {
     cache: {
       blocks_by_id: {},
     },
+    dragdrop_block: null,
     socket_connecting: {
       socket_start: null,
       socket_end: null,
@@ -38,7 +39,7 @@ export default new Vuex.Store({
     ],
   },
   mutations: {
-    
+
     socket_connection_start(state, socket) {
       state.socket_connecting.socket_start = socket;
       state.socket_connecting.connecting = true;
@@ -85,9 +86,9 @@ export default new Vuex.Store({
         connection.component.$forceUpdate();
       }
     },
-    connection_set(state, {id, connection}){
-      for (let i = 0; i < state.connections.length; i++){
-        if (state.connections[i].id == id){
+    connection_set(state, { id, connection }) {
+      for (let i = 0; i < state.connections.length; i++) {
+        if (state.connections[i].id == id) {
           state.connections[i] = connection;
           break;
         }
@@ -111,12 +112,14 @@ export default new Vuex.Store({
         if (block.outputs[i].type != "stream")
           block.outputs[i].value = "";
       }
+
       state.blocks.push(block);
+      console.log(state.blocks);
       this.commit('cache_update_blocks_by_id');
     },
 
     blocks_delete(state, id) {
-      
+
       for (let idx = 0; idx < state.blocks.length; idx++) {
         if (state.blocks[idx].id == id) {
           state.blocks.splice(idx, 1);
@@ -232,19 +235,31 @@ export default new Vuex.Store({
       socket.$parent.$forceUpdate();
 
     },
-    cache_update_blocks_by_id(state){
-      for (let idx = 0; idx < state.blocks.length; idx++){
+    cache_update_blocks_by_id(state) {
+      for (let idx = 0; idx < state.blocks.length; idx++) {
         state.cache.blocks_by_id[state.blocks[idx].id] = state.blocks[idx];
       }
     },
     import_blocks(state, script) {
-      state.blocks = script.blocks;   
+      state.blocks = script.blocks;
       this.commit('cache_update_blocks_by_id');
 
     },
-    import_connections(state, script) {   
+    import_connections(state, script) {
       console.log(script.connections);
       state.connections = script.connections;
+    },
+    drag_block(state, block) {
+      state.dragdrop_block = block;
+    },
+    dragover_block(state, event) {
+      console.log('DROP', event);
+      state.dragdrop_block.left = event.layerX;
+      state.dragdrop_block.top = event.layerY;
+      // this.commit("blocks_add", lodash.cloneDeep(block));
+    },
+    drop_block(state) {
+      this.commit("blocks_add", lodash.cloneDeep(state.dragdrop_block));
     }
   },
   actions: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="group">
+  <div class="group" @dragover="$store.commit('dragover_block', $event)">
     <!-- <Block :sleft="50" :stop="50" :swidth="100" :sheight="40"></Block> -->
     <!-- <Block :sleft="300" :stop="100" :swidth="100" :sheight="40"></Block> -->
     <Block

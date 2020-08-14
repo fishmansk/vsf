@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="auth">
+    <div >
       <b-navbar toggleable="lg" type="dark" variant="info">
         <b-navbar-brand href="#">VSF</b-navbar-brand>
 
@@ -45,9 +45,7 @@
         </div>
       </div>
     </div>
-    <div v-else>
-      <SignIn @signin="auth=true;"></SignIn>
-    </div>
+    
   </div>
 </template>
 
@@ -71,7 +69,7 @@ export default {
   },
   data: function () {
     return {
-      auth: false,
+      auth: true,
       packages: [python_package, flask_package, vk_package, viscork_package],
     };
   },

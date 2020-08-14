@@ -28,15 +28,17 @@
         <div
           style="width: 20vw; max-width: 300px; min-width: 200px; border-right: 1px solid #99999955; display: flex; flex-direction: column;"
         >
-          <div
-            v-for="block in blocks"
-            :key="block.title"
-            class=" btn btn-secondary m-1"
-            style="cursor: move"
-            draggable="true"
-            @dragstart="$store.commit('drag_block', block)"
-            @dragend="$store.commit('drop_block')"
-          >{{block.title}}</div>
+          <b-card v-for="pkg in packages" :key="pkg.name" :title="pkg.name" class="m-1">
+            <div
+              v-for="block in pkg.blocks"
+              :key="block.title"
+              class="btn btn-secondary btn-sm m-1"
+              style="cursor: move"
+              draggable="true"
+              @dragstart="$store.commit('drag_block', block)"
+              @dragend="$store.commit('drop_block')"
+            >{{block.title}}</div>
+          </b-card>
         </div>
         <div style="width: 80vw">
           <Editor></Editor>
@@ -55,19 +57,22 @@ import Block from "./components/vsf/Block.vue";
 import SignIn from "./components/auth/SignIn.vue";
 import store from "./store";
 let lodash = require("lodash");
-import blocks from "./components/vsf/blocks.js";
+import python_package from "./components/blocks/python.js";
+import flask_package from "./components/blocks/flask.js";
+import vk_package from "./components/blocks/vk.js";
+import viscork_package from "./components/blocks/viscrok.js";
 export default {
   name: "App",
   store,
   components: {
     Editor,
     SignIn,
-    Block
+    Block,
   },
-  data: function() {
+  data: function () {
     return {
       auth: false,
-      blocks
+      packages: [python_package, flask_package, vk_package, viscork_package],
     };
   },
   mounted() {
@@ -82,8 +87,8 @@ export default {
     add_block(block) {
       // console.log(block);
       this.$store.commit("blocks_add", lodash.cloneDeep(block));
-    }
-  }
+    },
+  },
 };
 </script>
 

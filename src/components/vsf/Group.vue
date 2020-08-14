@@ -34,7 +34,7 @@ import DragableMixin from "./DragableMixin.vue";
 import Block from "./Block.vue";
 import Connection from "./Connection.vue";
 import PopupMenu from "../utils/PopupMenu.vue";
-import blocks from "./blocks.js";
+import blocks from "./../blocks/python.js";
 let lodash = require("lodash");
 let uuid4 = require("uuid4");
 
